@@ -1,6 +1,6 @@
 // Use relative path in production (Vercel), absolute URL in development
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ||
-  (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:4000');
+  (process.env.NODE_ENV === 'production' ? '' : 'http://127.0.0.1:4000');
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}, token?: string | null): Promise<T> {
   const headers = new Headers(options.headers || {});

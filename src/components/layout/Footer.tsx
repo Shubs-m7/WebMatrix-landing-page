@@ -53,80 +53,96 @@ const InstagramIcon = ({ className }: { className?: string }) => (
 
 export const Footer = () => {
   return (
-    <footer className="bg-card border-t border-border">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+    <footer className="relative overflow-hidden bg-background border-t border-border/30">
+      {/* Immersive mesh glow for footer */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute bottom-[-20%] left-[20%] w-[40vw] h-[40vw] bg-primary/10 rounded-full blur-[100px] mix-blend-screen opacity-40"></div>
+        <div className="absolute bottom-[-10%] right-[10%] w-[30vw] h-[30vw] bg-accent/10 rounded-full blur-[100px] mix-blend-screen opacity-30"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-transparent" />
+      </div>
+
+      <div className="container mx-auto px-4 py-16 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8 mb-16">
           {/* Brand */}
-          <div className="col-span-1">
-            <h3 className="text-xl font-display font-bold text-gradient mb-4">WebMatrix</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Crafting fast, beautiful web experiences with 3D and motion design.
+          <div className="col-span-1 md:col-span-12 lg:col-span-4">
+            <h3 className="text-2xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent mb-6 inline-block">WebMatrix</h3>
+            <p className="text-base text-muted-foreground mb-8 leading-relaxed max-w-sm">
+              Crafting premium digital experiences through immersive design, modern web technologies, and seamless animations.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <a href="https://github.com/WebMatrix-Technology?tab=repositories" target="_blank" rel="noopener noreferrer" 
-                className="text-muted-foreground hover:text-primary transition-colors">
-                <GitHubIcon className="h-5 w-5" />
+                className="w-10 h-10 rounded-full bg-card/50 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/10 transition-all duration-300">
+                <GitHubIcon className="h-4 w-4" />
               </a>
               <a href="https://x.com/Webmatrix_Tech" target="_blank" rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors">
-                <XIcon className="h-5 w-5" />
+                className="w-10 h-10 rounded-full bg-card/50 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/10 transition-all duration-300">
+                <XIcon className="h-4 w-4" />
               </a>
               <a href="https://www.linkedin.com/in/webmatrix-technologies-951652392" target="_blank" rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors">
-                <LinkedInIcon className="h-5 w-5" />
+                className="w-10 h-10 rounded-full bg-card/50 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-accent hover:border-accent/50 hover:bg-accent/10 transition-all duration-300">
+                <LinkedInIcon className="h-4 w-4" />
               </a>
               <a href="https://www.instagram.com/webmatrix_technologies" target="_blank" rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors">
-                <InstagramIcon className="h-5 w-5" />
+                className="w-10 h-10 rounded-full bg-card/50 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/10 transition-all duration-300">
+                <InstagramIcon className="h-4 w-4" />
               </a>
               <a href="mailto:webmatrix.work@gmail.com"
-                className="text-muted-foreground hover:text-primary transition-colors">
-                <Mail className="h-5 w-5" />
+                className="w-10 h-10 rounded-full bg-card/50 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-accent hover:border-accent/50 hover:bg-accent/10 transition-all duration-300">
+                <Mail className="h-4 w-4" />
               </a>
             </div>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h4 className="font-semibold mb-4">Company</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">About</Link></li>
-              <li><Link href="/work" className="text-muted-foreground hover:text-primary transition-colors">Work</Link></li>
-              <li><Link href="/process" className="text-muted-foreground hover:text-primary transition-colors">Process</Link></li>
-              <li><Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors">Blog</Link></li>
+          <div className="col-span-1 md:col-span-4 lg:col-span-2 lg:col-start-6">
+            <h4 className="font-display font-semibold mb-6 text-foreground tracking-wide uppercase text-sm">Company</h4>
+            <ul className="space-y-3 text-sm">
+              <li><Link href="/about" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"><span className="w-0 group-hover:w-2 h-[1px] bg-primary transition-all duration-300" />About Us</Link></li>
+              <li><Link href="/work" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"><span className="w-0 group-hover:w-2 h-[1px] bg-primary transition-all duration-300" />Our Work</Link></li>
+              <li><Link href="/process" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"><span className="w-0 group-hover:w-2 h-[1px] bg-primary transition-all duration-300" />The Process</Link></li>
+              <li><Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"><span className="w-0 group-hover:w-2 h-[1px] bg-primary transition-all duration-300" />Insights</Link></li>
             </ul>
           </div>
 
           {/* Services */}
-          <div>
-            <h4 className="font-semibold mb-4">Services</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/services" className="text-muted-foreground hover:text-primary transition-colors">Web Design</Link></li>
-              <li><Link href="/services" className="text-muted-foreground hover:text-primary transition-colors">Development</Link></li>
-              <li><Link href="/services" className="text-muted-foreground hover:text-primary transition-colors">3D & WebGL</Link></li>
-              <li><Link href="/services" className="text-muted-foreground hover:text-primary transition-colors">Performance</Link></li>
+          <div className="col-span-1 md:col-span-4 lg:col-span-2">
+            <h4 className="font-display font-semibold mb-6 text-foreground tracking-wide uppercase text-sm">Services</h4>
+            <ul className="space-y-3 text-sm">
+              <li><Link href="/services" className="text-muted-foreground hover:text-accent transition-colors flex items-center gap-2 group"><span className="w-0 group-hover:w-2 h-[1px] bg-accent transition-all duration-300" />Web Design</Link></li>
+              <li><Link href="/services" className="text-muted-foreground hover:text-accent transition-colors flex items-center gap-2 group"><span className="w-0 group-hover:w-2 h-[1px] bg-accent transition-all duration-300" />Development</Link></li>
+              <li><Link href="/services" className="text-muted-foreground hover:text-accent transition-colors flex items-center gap-2 group"><span className="w-0 group-hover:w-2 h-[1px] bg-accent transition-all duration-300" />3D & WebGL</Link></li>
+              <li><Link href="/services" className="text-muted-foreground hover:text-accent transition-colors flex items-center gap-2 group"><span className="w-0 group-hover:w-2 h-[1px] bg-accent transition-all duration-300" />Performance</Link></li>
             </ul>
           </div>
 
           {/* Contact */}
-          <div>
-            <h4 className="font-semibold mb-4">Get in Touch</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>webmatrix.work@gmail.com</li>
-              <li>+91 9112144335 / +91 7448223550</li>
-              <li className="pt-2">
-                <Link href="/contact" className="inline-block px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:shadow-glow transition-all">
-                  Start a Project
-                </Link>
+          <div className="col-span-1 md:col-span-4 lg:col-span-3">
+            <h4 className="font-display font-semibold mb-6 text-foreground tracking-wide uppercase text-sm">Get in Touch</h4>
+            <ul className="space-y-4 text-sm text-muted-foreground mb-8">
+              <li className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Mail className="h-4 w-4 text-primary" />
+                </div>
+                webmatrix.work@gmail.com
               </li>
             </ul>
+            <Link 
+              href="/contact" 
+              className="inline-flex items-center justify-center h-12 px-6 rounded-xl text-sm font-bold shadow-[0_0_20px_rgba(108,92,231,0.2)] hover:shadow-[0_0_40px_rgba(108,92,231,0.5)] transition-all duration-300 bg-primary hover:bg-primary-glow text-primary-foreground group"
+            >
+              Start a Project
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2 h-4 w-4 transform group-hover:translate-x-1 transition-transform">
+                <path d="M5 12h14"></path>
+                <path d="m12 5 7 7-7 7"></path>
+              </svg>
+            </Link>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+        <div className="pt-8 border-t border-border/30 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} WebMatrix. All rights reserved.</p>
-          <div className="flex gap-6">
+          <div className="flex gap-8">
             <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
           </div>

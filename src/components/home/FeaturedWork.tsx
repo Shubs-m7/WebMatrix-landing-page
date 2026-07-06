@@ -2,8 +2,8 @@
 
 'use client';
 
-import { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import React, { useMemo, useRef } from 'react';
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, ExternalLink, RefreshCw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useProjects, type Project } from '@/hooks/useProjects';
 import { projects as staticProjects } from '@/data/projects';
 import { adaptStaticProject } from '@/utils/project-adapters';
+
 const getFallbackProjects = (limit: number): Project[] =>
   [...staticProjects]
     .map((project, index) => ({ project, index }))
@@ -26,21 +27,148 @@ const getFallbackProjects = (limit: number): Project[] =>
     .map(({ project }, index) => adaptStaticProject(project, index));
 
 const FeaturedProjectSkeleton = () => (
-  <Card className="h-full overflow-hidden border-border/50">
-    <div className="aspect-video bg-muted/60" />
-    <CardContent className="p-6 space-y-4">
-      <Skeleton className="h-5 w-24" />
-      <Skeleton className="h-6 w-3/4" />
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-2/3" />
-      <div className="flex gap-2">
-        <Skeleton className="h-6 w-16" />
-        <Skeleton className="h-6 w-20" />
+  <Card className="h-full overflow-hidden border border-border/40 dark:border-white/5 bg-card dark:bg-[#050505] rounded-3xl flex flex-col shadow-lg dark:shadow-none">
+    <div className="p-4 pb-0">
+      <div className="aspect-[4/3] rounded-2xl bg-muted/40 dark:bg-white/5 animate-pulse" />
+    </div>
+    <CardContent className="p-8 space-y-6 flex-1 flex flex-col">
+      <div>
+        <Skeleton className="h-4 w-20 bg-muted/40 dark:bg-white/5 mb-3" />
+        <Skeleton className="h-8 w-3/4 bg-muted/40 dark:bg-white/5" />
       </div>
-      <Skeleton className="h-10 w-full" />
+      <div className="space-y-2 flex-1">
+        <Skeleton className="h-4 w-full bg-muted/40 dark:bg-white/5" />
+        <Skeleton className="h-4 w-5/6 bg-muted/40 dark:bg-white/5" />
+      </div>
+      <div className="flex gap-4 mt-auto">
+        <Skeleton className="h-4 w-16 bg-muted/40 dark:bg-white/5" />
+        <Skeleton className="h-4 w-20 bg-muted/40 dark:bg-white/5" />
+      </div>
     </CardContent>
   </Card>
 );
+
+const TiltProjectCard = ({ project, index }: { project: Project, index: number }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0.5);
+  const mouseY = useMotionValue(0.5);
+  
+  const springConfig = { stiffness: 300, damping: 20 };
+  const x = useSpring(mouseX, springConfig);
+  const y = useSpring(mouseY, springConfig);
+  
+  const rotateX = useTransform(y, [0, 1], [5, -5]);
+  const rotateY = useTransform(x, [0, 1], [-5, 5]);
+
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start end", "end start"]
+  });
+  const watermarkY = useTransform(scrollYProgress, [0, 1], [30, -30]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    mouseX.set((e.clientX - rect.left) / rect.width);
+    mouseY.set((e.clientY - rect.top) / rect.height);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0.5);
+    mouseY.set(0.5);
+  };
+
+  return (
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 40, scale: 0.95 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
+      style={{ perspective: 1200 }}
+      className="h-full"
+    >
+      <motion.div
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        className="h-full relative will-change-transform"
+      >
+        <Link href={`/work/${project.id}`} className="block h-full outline-none">
+          <Card className="group overflow-hidden border border-border/40 dark:border-white/5 bg-card dark:bg-[#050505] hover:border-primary/30 dark:hover:border-white/10 transition-colors duration-500 rounded-3xl h-full flex flex-col relative z-0 shadow-xl dark:shadow-2xl">
+            <div className="p-4 pb-0" style={{ transform: "translateZ(30px)" }}>
+              <div className="relative aspect-video sm:aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 to-transparent dark:from-white/5 border border-border/30 dark:border-white/5 flex items-center justify-center p-4 sm:p-6 md:p-8 group-hover:scale-[1.02] transition-transform duration-700 ease-out">
+                <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                
+                <div className="w-full relative drop-shadow-2xl z-10 transform group-hover:scale-105 transition-transform duration-1000 ease-out">
+                  <DevicePreview
+                    desktopImage={project.image}
+                    mobileImage={project.mobileImage}
+                    title={project.title}
+                    className="mx-auto"
+                    display="both"
+                  />
+                </div>
+
+                <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20">
+                  <div className="bg-background/80 backdrop-blur-md p-1.5 sm:p-2 rounded-full border border-border/50 dark:border-white/10 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0 shadow-lg">
+                    <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <CardContent className="p-6 md:p-8 flex-1 flex flex-col relative overflow-hidden" style={{ transform: "translateZ(20px)" }}>
+              {/* Giant Number Watermark with Parallax */}
+              <motion.div 
+                style={{ y: watermarkY }}
+                className="absolute -right-4 -bottom-4 text-[80px] md:text-[120px] font-black text-foreground/[0.03] dark:text-white/[0.02] leading-none pointer-events-none font-display"
+              >
+                0{index + 1}
+              </motion.div>
+
+              <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3 sm:gap-0 mb-6 relative z-10">
+                <div>
+                  <div className="text-primary text-xs sm:text-sm font-medium mb-1 sm:mb-2">{project.category}</div>
+                  <h3 className="text-xl sm:text-2xl font-display font-semibold text-foreground/90 group-hover:text-foreground dark:group-hover:text-white transition-colors duration-300">
+                    {project.title}
+                  </h3>
+                </div>
+                {project.metrics && (
+                  <div className="text-left sm:text-right">
+                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium mb-1">{project.metrics.metric}</div>
+                    <div className="inline-block text-xs sm:text-sm font-bold text-foreground dark:text-white bg-primary/10 dark:bg-white/5 px-2 sm:px-3 py-1 rounded-full border border-primary/20 dark:border-white/10">
+                      {project.metrics.improvement}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <p className="text-muted-foreground font-light leading-relaxed mb-8 flex-1 relative z-10">
+                {project.description}
+              </p>
+              
+              <div className="mt-auto relative z-10">
+                <div className="flex flex-wrap gap-x-4 gap-y-2 mb-8 text-xs text-muted-foreground/70">
+                  {project.tags.map((tag) => (
+                    <span key={tag} className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary/40" />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground dark:text-white group-hover:text-primary transition-colors duration-300 cursor-pointer">
+                  View Case Study
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </motion.div>
+    </motion.div>
+  );
+};
 
 export const FeaturedWork = () => {
   const maxProjects = 3;
@@ -57,169 +185,79 @@ export const FeaturedWork = () => {
   const skeletonCount = Math.max(projectsToShow.length || fallbackProjects.length || 6, 3);
 
   return (
-    <section className="py-24 bg-secondary/40 dark:bg-secondary/30">
-      <div className="container mx-auto px-4">
+    <section className="py-32 bg-background relative overflow-hidden">
+      {/* Subtle Background Glow */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.95 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-16"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="text-center mb-20"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-display-sm font-display mb-4">
+          <h2 className="text-4xl md:text-5xl lg:text-display-sm font-display font-bold mb-6">
             Featured <span className="text-gradient">Work</span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Explore our newest projects showcasing cutting-edge web experiences
+          <p className="text-muted-foreground text-xl max-w-2xl mx-auto font-light">
+            Explore our newest projects showcasing cutting-edge web experiences and digital products.
           </p>
         </motion.div>
-
-        <div className="mb-12 text-center text-sm text-muted-foreground">
-          Projects appear in the sequence arranged in the admin panel.
-        </div>
 
         {isFallback && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mb-8 rounded-lg border border-border/60 bg-background/60 px-6 py-4 text-sm text-muted-foreground shadow-sm"
+            className="mb-8 rounded-lg border border-border/30 glass px-6 py-4 text-sm text-muted-foreground shadow-sm max-w-3xl mx-auto text-center"
           >
             We&apos;re showing a curated selection while we reconnect to the live portfolio.
           </motion.div>
         )}
 
         {isError && !hasProjects && (
-          <div className="mb-12 flex flex-col items-center justify-center gap-4 rounded-lg border border-destructive/40 bg-destructive/10 p-6 text-center">
+          <div className="mb-12 flex flex-col items-center justify-center gap-4 rounded-lg border border-destructive/40 bg-destructive/10 p-6 text-center max-w-3xl mx-auto glass">
             <div className="text-destructive font-medium">We couldn&apos;t load our featured projects.</div>
             <p className="text-sm text-muted-foreground">
               {error ?? 'Please try again in a moment or view all projects from the work page.'}
             </p>
-            <Button variant="outline" size="sm" onClick={refetch} className="inline-flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={refetch} className="inline-flex items-center gap-2 mt-2">
               <RefreshCw className="h-4 w-4" />
               Try Again
             </Button>
           </div>
         )}
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
           {isLoading
             ? Array.from({ length: skeletonCount }).map((_, index) => (
               <motion.div
                 key={`skeleton-${index}`}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.6, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
               >
                 <FeaturedProjectSkeleton />
               </motion.div>
             ))
             : projectsToShow.map((project, index) => (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{
-                  duration: 0.5,
-                  delay: index * 0.15,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              >
-                <Link href={`/work/${project.id}`}>
-                  <Card className="group overflow-hidden border-border/60 dark:border-border/50 hover:border-primary/60 dark:hover:border-primary/50 transition-all hover:shadow-glow h-full bg-card/50 dark:bg-card">
-                    <div className="aspect-video relative overflow-hidden rounded-t-lg bg-zinc-900 dark:bg-zinc-900">
-                      <div className="absolute left-4 top-4 z-10">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 dark:border-border/60 bg-background/90 dark:bg-background/70 text-sm font-semibold text-primary shadow-lg backdrop-blur-sm dark:backdrop-blur">
-                          {index + 1}
-                        </span>
-                      </div>
-
-                      <div className="absolute inset-0 p-6 flex items-center justify-center">
-                        <div className="w-full">
-                          <DevicePreview
-                            desktopImage={project.image}
-                            mobileImage={project.mobileImage}
-                            title={project.title}
-                            className="mx-auto"
-                            display="both"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 dark:from-black/30 via-transparent to-transparent pointer-events-none" />
-
-                      <div className="absolute top-4 right-4">
-                        <ExternalLink className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                    </div>
-                    <CardContent className="p-6">
-                      <div className="mb-4 flex items-center justify-between">
-                        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                          {project.category}
-                        </Badge>
-                        {project.metrics && (
-                          <div className="text-right">
-                            <div className="text-xs uppercase tracking-wide text-muted-foreground">Result</div>
-                            <div className="text-sm font-semibold text-primary">
-                              {project.metrics.improvement}
-                            </div>
-                            <div className="text-xs text-muted-foreground">{project.metrics.metric}</div>
-                          </div>
-                        )}
-                      </div>
-
-                      <h3 className="text-xl font-display font-semibold mb-2 group-hover:text-gradient transition-colors">
-                        {project.title}
-                      </h3>
-                      <p className="text-muted-foreground mb-4">{project.description}</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {project.tags.map((tag) => (
-                          <Badge key={tag} variant="secondary">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex items-center justify-between gap-4 pt-4 border-t border-border/70 dark:border-border/60">
-                        <div className="text-sm font-medium text-primary inline-flex items-center gap-2">
-                          View Case Study
-                          <ArrowRight className="h-4 w-4" />
-                        </div>
-                        {project.websiteUrl && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              window.open(project.websiteUrl, '_blank', 'noopener,noreferrer');
-                            }}
-                          >
-                            Visit Site
-                            <ExternalLink className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </motion.div>
+              <TiltProjectCard key={project.id} project={project} index={index} />
             ))}
         </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.8 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
           className="text-center"
         >
-          <Link
-            href="/work"
-            className="inline-flex items-center gap-2 text-primary hover:text-accent transition-colors font-medium"
-          >
-            View All Projects
-            <ArrowRight className="h-5 w-5" />
-          </Link>
+          <Button asChild size="lg" variant="outline" className="h-14 px-8 rounded-full text-lg glass hover:bg-white/5 transition-all duration-300 shadow-[0_0_20px_rgba(0,0,0,0.1)] group">
+            <Link href="/work">
+              View All Projects
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
         </motion.div>
       </div>
     </section>

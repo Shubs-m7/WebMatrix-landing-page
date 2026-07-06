@@ -1,5 +1,5 @@
 import { Hero } from '@/components/home/Hero';
-import { PreviewSection } from '@/components/home/PreviewSection';
+import { AnimatedSlideshowSection } from '@/components/home/AnimatedSlideshowSection';
 import { FeaturedWork } from '@/components/home/FeaturedWork';
 import { Services } from '@/components/home/Services';
 import { Testimonials } from '@/components/home/Testimonials';
@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <div className="min-h-screen">
       <Hero />
-      <PreviewSection />
+      <AnimatedSlideshowSection />
       <FeaturedWork />
       <Services />
       <Testimonials />
@@ -17,4 +17,3 @@ export default function Page() {
     </div>
   );
 }
-

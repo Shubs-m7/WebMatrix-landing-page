@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import './scene3d.css';
 
 export const Scene3D = () => {
   const { theme } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -16,119 +16,135 @@ export const Scene3D = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-      // Set canvas size
+    // Track mouse position and rotation
+    let mouseX = -1000;
+    let mouseY = -1000;
+    let targetRotX = 0;
+    let targetRotY = 0;
+    let currentRotX = 0;
+    let currentRotY = 0;
+    
+    // Set canvas size (larger than screen so edges don't show when rotated)
     const resizeCanvas = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      canvas.width = window.innerWidth * 1.5;
+      canvas.height = window.innerHeight * 1.5;
     };
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
-
-    // Track mouse position
+    
     const handleMouseMove = (e: MouseEvent) => {
+      // Mouse position relative to canvas for the matrix interaction
       const rect = canvas.getBoundingClientRect();
-      setMousePos({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      });
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+
+      // 3D rotation based on mouse position relative to center of screen
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      
+      // Rotate up to 25 degrees for a very strong 3D effect
+      targetRotY = ((e.clientX - centerX) / centerX) * 25;
+      targetRotX = -((e.clientY - centerY) / centerY) * 25;
     };
 
     const handleMouseLeave = () => {
-      setMousePos({ x: -1000, y: -1000 });
+      mouseX = -1000;
+      mouseY = -1000;
+      targetRotX = 0;
+      targetRotY = 0;
     };
 
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseleave', handleMouseLeave);
 
     // Matrix configuration
-    const fontSize = 14;
+    const fontSize = 22; // Slightly larger font size
     const columns = Math.floor(canvas.width / fontSize);
     const drops: number[] = Array(columns).fill(1);
     const dropSpeeds: number[] = Array(columns).fill(1);
     
-    // Coding characters - mix of symbols, letters, and numbers
+    // Coding characters
     const chars = '01{}</>[]();.,/*+-=@#$%&|~абвгдежзийклмнопрстуфхцчшщъыьэюяABCDEFGHIJKLMNOPQRSTUVWXYZ';
     
     // Animation loop
     const draw = () => {
-      // Semi-transparent fade effect
+      // Smooth out the 3D rotation interpolation
+      currentRotX += (targetRotX - currentRotX) * 0.05;
+      currentRotY += (targetRotY - currentRotY) * 0.05;
+      
+      // Apply 3D transform directly to bypass React renders for smooth 60fps
+      if (canvasRef.current) {
+         canvasRef.current.style.transform = `translate(-50%, -50%) translate3d(0, 0, -100px) rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
+      }
+
       ctx.fillStyle = theme === 'dark' 
-        ? 'rgba(0, 0, 0, 0.1)' 
-        : 'rgba(255, 255, 255, 0.12)';
+        ? 'rgba(0, 0, 0, 0.15)' 
+        : 'rgba(255, 255, 255, 0.25)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Set text properties
       ctx.font = `${fontSize}px monospace`;
+      ctx.textAlign = 'center';
       
-      // Draw characters
       for (let i = 0; i < drops.length; i++) {
         const x = i * fontSize;
         const y = drops[i] * fontSize;
         
-        // Calculate distance from mouse
-        const dx = mousePos.x - x;
-        const dy = mousePos.y - y;
+        const dx = mouseX - x;
+        const dy = mouseY - y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const maxInfluence = 150;
+        const maxInfluence = 300; // Huge interactive radius
         
-        // Influence speed based on mouse proximity
+        // Mouse proximity speeds up drops and adds glow
         if (distance < maxInfluence) {
           const influence = 1 - (distance / maxInfluence);
-          dropSpeeds[i] = 1 + influence * 3; // Speed up near mouse
+          dropSpeeds[i] = 1 + influence * 5; 
           
-          // Draw glow effect around mouse
-          const glowSize = fontSize * (1 + influence * 2);
+          const glowSize = fontSize * (1 + influence * 4);
           ctx.save();
-          ctx.globalAlpha = influence * 0.3;
-          ctx.fillStyle = 'rgba(0, 209, 255, 0.8)';
+          ctx.globalAlpha = influence * 0.5;
+          ctx.fillStyle = theme === 'dark' ? 'rgba(25, 210, 100, 0.8)' : 'rgba(38, 112, 232, 0.7)';
           ctx.fillRect(x - glowSize/2, y - glowSize/2, glowSize, glowSize);
           ctx.restore();
         } else {
-          dropSpeeds[i] = Math.max(0.8, dropSpeeds[i] * 0.95); // Gradually return to normal
+          dropSpeeds[i] = Math.max(0.8, dropSpeeds[i] * 0.95);
         }
         
-        // Random character
         const char = chars[Math.floor(Math.random() * chars.length)];
-        
-        // Color based on proximity to mouse
         let color;
-        const alpha = theme === 'dark' ? 1 : 0.8; // Adjust transparency for light mode
+        const alpha = theme === 'dark' ? 1 : 1; // Full alpha for light mode as well
         
         if (distance < maxInfluence / 2) {
-          // Bright cyan near mouse
+          // Bright Accent (Green) near mouse
           color = theme === 'dark'
-            ? `rgba(0, 255, 255, ${(0.95 + Math.random() * 0.05) * alpha})`
-            : `rgba(0, 100, 255, ${(0.95 + Math.random() * 0.05) * alpha})`;
+            ? `rgba(25, 255, 120, ${(0.95 + Math.random() * 0.05) * alpha})`
+            : `rgba(25, 210, 100, ${(0.95 + Math.random() * 0.05) * alpha})`; // Accent
         } else if (distance < maxInfluence) {
-          // Purple/Blue in medium range
+          // Primary (Blue) in medium range
           color = theme === 'dark'
-            ? `rgba(128, 0, 255, ${(0.85 + Math.random() * 0.15) * alpha})`
-            : `rgba(0, 100, 200, ${(0.85 + Math.random() * 0.15) * alpha})`;
+            ? `rgba(60, 140, 255, ${(0.85 + Math.random() * 0.15) * alpha})`
+            : `rgba(38, 112, 232, ${(0.85 + Math.random() * 0.15) * alpha})`; // Primary
         } else if (Math.random() > 0.95) {
           // Bright highlights
           color = theme === 'dark'
-            ? `rgba(0, 255, 255, ${(0.9 + Math.random() * 0.1) * alpha})`
-            : `rgba(0, 120, 255, ${(0.9 + Math.random() * 0.1) * alpha})`;
-        } else if (Math.random() > 0.9) {
-          // Secondary highlights
-          color = theme === 'dark'
-            ? `rgba(170, 255, 170, ${(0.8 + Math.random() * 0.2) * alpha})`
-            : `rgba(0, 80, 200, ${(0.8 + Math.random() * 0.2) * alpha})`;
+            ? `rgba(25, 255, 120, ${(0.9 + Math.random() * 0.1) * alpha})`
+            : `rgba(38, 112, 232, ${(0.9 + Math.random() * 0.1) * alpha})`; // Primary highlight
         } else {
-          // Base matrix color
+          // Base matrix color (Subtle Blue)
           color = theme === 'dark'
-            ? `rgba(0, 255, 70, ${(0.7 + Math.random() * 0.3) * alpha})`
-            : `rgba(0, 60, 180, ${(0.7 + Math.random() * 0.3) * alpha})`;
+            ? `rgba(38, 112, 232, ${(0.4 + Math.random() * 0.3) * alpha})`
+            : `rgba(38, 112, 232, ${(0.5 + Math.random() * 0.3) * alpha})`; // Vibrant primary base for light mode
         }
         
         ctx.fillStyle = color;
         
-        // Draw character with size variation near mouse
+        // 3D pop effect for characters near cursor
         if (distance < maxInfluence / 2) {
           const influence = 1 - (distance / (maxInfluence / 2));
-          const scale = 1 + influence * 0.5;
+          const scale = 1 + influence * 2.2; // Massive pop effect
           ctx.save();
-          ctx.font = `${fontSize * scale}px monospace`;
+          ctx.font = `bold ${fontSize * scale}px monospace`;
+          ctx.shadowBlur = 15 * influence;
+          ctx.shadowColor = color;
           ctx.fillText(char, x, y);
           ctx.restore();
         } else {
@@ -140,27 +156,34 @@ export const Scene3D = () => {
           drops[i] = 0;
         }
         
-        // Move drop down with variable speed
+        // Move drop down
         drops[i] += dropSpeeds[i];
       }
     };
 
-    // Start animation
-    const interval = setInterval(draw, 50);
+    const interval = setInterval(draw, 40);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('resize', resizeCanvas);
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [mousePos, theme]);
+  }, [theme]);
 
   return (
-    <div className="w-full h-full bg-white dark:bg-black transition-colors duration-300">
+    <div 
+      ref={containerRef}
+      className="w-full h-full bg-white dark:bg-black transition-colors duration-300 absolute inset-0 overflow-hidden"
+      style={{ perspective: '800px' }}
+    >
       <canvas
         ref={canvasRef}
-        className="w-full h-full scene3d-canvas"
+        className="scene3d-canvas absolute top-1/2 left-1/2 will-change-transform"
+        style={{ 
+          transformStyle: 'preserve-3d',
+          transform: 'translate(-50%, -50%) translate3d(0, 0, -100px)'
+        }}
       />
     </div>
   );

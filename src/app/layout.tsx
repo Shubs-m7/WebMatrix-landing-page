@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import React from 'react';
 import './globals.css';
 import { Providers } from './providers';
+import { CustomCursor } from '@/components/ui/CustomCursor';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -31,8 +32,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={inter.className}>
-        <Providers>{children}</Providers>
+      <body className={`${inter.className} overflow-x-hidden`}>
+        <Providers>
+          <CustomCursor />
+          {children}
+        </Providers>
       </body>
     </html>
   );

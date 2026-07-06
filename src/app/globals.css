@@ -18,15 +18,15 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 8%;
 
-    /* Primary: Purple #6C5CE7 - Enhanced for light mode */
-    --primary: 250 69% 58%;
+    /* Primary: Premium Blue */
+    --primary: 220 80% 55%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 250 69% 70%;
+    --primary-glow: 220 80% 65%;
 
-    /* Accent: Cyan #00D1FF - Enhanced for light mode */
-    --accent: 189 100% 48%;
+    /* Accent: Vibrant Green */
+    --accent: 145 80% 45%;
     --accent-foreground: 240 10% 8%;
-    --accent-glow: 189 100% 65%;
+    --accent-glow: 145 80% 60%;
 
     --secondary: 240 6% 97%;
     --secondary-foreground: 240 10% 8%;
@@ -40,7 +40,7 @@ All colors MUST be HSL.
 
     --border: 240 6% 88%;
     --input: 240 6% 92%;
-    --ring: 250 69% 58%;
+    --ring: 220 80% 55%;
 
     --radius: 0.75rem;
 
@@ -50,13 +50,13 @@ All colors MUST be HSL.
     --danger: 0 84% 58%;
 
     /* Premium effects - Refined for light mode */
-    --gradient-primary: linear-gradient(135deg, hsl(250 69% 58%), hsl(189 100% 48%));
+    --gradient-primary: linear-gradient(135deg, hsl(220 80% 55%), hsl(145 80% 45%));
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(240 6% 98.5%));
     --shadow-soft: 0 2px 16px -4px hsl(240 10% 8% / 0.06), 0 1px 4px -1px hsl(240 10% 8% / 0.04);
     --shadow-medium: 0 8px 32px -6px hsl(240 10% 8% / 0.1), 0 2px 8px -2px hsl(240 10% 8% / 0.06);
     --shadow-strong: 0 20px 60px -12px hsl(240 10% 8% / 0.18), 0 4px 16px -4px hsl(240 10% 8% / 0.1);
-    --shadow-glow: 0 0 32px hsl(250 69% 58% / 0.25), 0 0 16px hsl(250 69% 58% / 0.15);
-    --shadow-accent-glow: 0 0 32px hsl(189 100% 48% / 0.25), 0 0 16px hsl(189 100% 48% / 0.15);
+    --shadow-glow: 0 0 32px hsl(220 80% 55% / 0.25), 0 0 16px hsl(220 80% 55% / 0.15);
+    --shadow-accent-glow: 0 0 32px hsl(145 80% 45% / 0.25), 0 0 16px hsl(145 80% 45% / 0.15);
     
     /* Glass effect - Enhanced for light mode with better backdrop */
     --glass-bg: hsl(0 0% 100% / 0.85);
@@ -79,14 +79,14 @@ All colors MUST be HSL.
     --popover-foreground: 0 0% 98%;
 
     /* Primary stays vibrant in dark */
-    --primary: 250 69% 62%;
+    --primary: 220 80% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 250 69% 75%;
+    --primary-glow: 220 80% 75%;
 
     /* Accent stays vibrant */
-    --accent: 189 100% 50%;
+    --accent: 145 80% 50%;
     --accent-foreground: 230 30% 7%;
-    --accent-glow: 189 100% 70%;
+    --accent-glow: 145 80% 70%;
 
     --secondary: 230 20% 15%;
     --secondary-foreground: 0 0% 98%;
@@ -99,16 +99,16 @@ All colors MUST be HSL.
 
     --border: 230 20% 18%;
     --input: 230 20% 18%;
-    --ring: 250 69% 62%;
+    --ring: 220 80% 60%;
 
     /* Premium effects for dark */
-    --gradient-primary: linear-gradient(135deg, hsl(250 69% 62%), hsl(189 100% 50%));
+    --gradient-primary: linear-gradient(135deg, hsl(220 80% 60%), hsl(145 80% 50%));
     --gradient-subtle: linear-gradient(180deg, hsl(230 30% 7%), hsl(230 25% 10%));
     --shadow-soft: 0 2px 20px -4px hsl(0 0% 0% / 0.3);
     --shadow-medium: 0 8px 30px -6px hsl(0 0% 0% / 0.4);
     --shadow-strong: 0 20px 50px -12px hsl(0 0% 0% / 0.6);
-    --shadow-glow: 0 0 60px hsl(250 69% 62% / 0.4);
-    --shadow-accent-glow: 0 0 60px hsl(189 100% 50% / 0.4);
+    --shadow-glow: 0 0 60px hsl(220 80% 60% / 0.4);
+    --shadow-accent-glow: 0 0 60px hsl(145 80% 50% / 0.4);
     
     /* Glass effect for dark */
     --glass-bg: hsl(230 25% 10% / 0.7);
